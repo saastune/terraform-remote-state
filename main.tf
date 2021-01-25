@@ -4,12 +4,8 @@
  * Useful for creating a common bucket naming convention and attaching a bucket policy using the specified role.
  */
 
-# the primary role that will be used to access the tf remote state
-variable "role" {
-}
-
-# additional roles that should be granted access to the tfstate
-variable "additional_roles" {
+# IAM user ARNs that should be granted access to the tfstate
+variable "team_member_arns" {
   type = list
   default = []
 }
@@ -87,17 +83,7 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
   restrict_public_buckets = true
 }
 
-# lookup the role arn
-data "aws_iam_role" "role" {
-  name = var.role
-}
-
-data "aws_iam_role" "additional_roles" {
-  for_each = toset(var.additional_roles)
-  name = each.key
-}
-
-# grant the role access to the bucket
+# grant the users access to the bucket
 resource "aws_s3_bucket_policy" "bucket_policy" {
 
   depends_on = [aws_s3_bucket.bucket]
@@ -110,12 +96,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     {
       "Effect": "Allow",
       "Principal":{
-        "AWS": [
-               %{ for r in data.aws_iam_role.additional_roles }
-                  "${r.arn}",
-               %{ endfor }
-               "${data.aws_iam_role.role.arn}"
-               ]
+        "AWS": [ ${join(",", var.team_member_arns)} ]
       },
       "Action": [ "s3:*" ],
       "Resource": [
