@@ -96,7 +96,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     {
       "Effect": "Allow",
       "Principal":{
-        "AWS": [ ${join(",", var.team_member_arns)} ]
+        "AWS": [ "${join("\",\"", var.team_member_arns)}" ]
       },
       "Action": [ "s3:*" ],
       "Resource": [
