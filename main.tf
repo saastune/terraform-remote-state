@@ -40,7 +40,7 @@ variable "block_public_access" {
 
 # bucket for storing tf state
 resource "aws_s3_bucket" "bucket" {
-  bucket        = "tf-state-${var.application}"
+  bucket        = "saas-tune-terraform-state-${var.application}"
   force_destroy = var.force_destroy
 
   versioning {
